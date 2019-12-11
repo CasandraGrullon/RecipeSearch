@@ -26,8 +26,6 @@ class RecipeSearchAPITests: XCTestCase {
         //Later we will look at URLComponents and URLQueryItems
         let recipeEndpointURL = "https://api.edamam.com/search?q=\(searchQuery)&app_id=\(SecretKeys.appId)&app_key=\(SecretKeys.appKey)&from=0&to=50"
         
-        
-        
         let request = URLRequest(url: URL(string: recipeEndpointURL)!)
         
         //2. act
@@ -48,5 +46,26 @@ class RecipeSearchAPITests: XCTestCase {
         wait(for: [exp], timeout: 5.0)
         
     }
-    //3. TODO: write an async test to validate you do get back 50 recipes for the search.
+    
+    //3. write an async test to validate you do get back 50 recipes for the search.
+    func testFetchRecipes(){
+        //arrange
+        let expectedRecipeCount = 50
+        let exp = XCTestExpectation(description: "50 recipes found")
+        
+        let searchQuery = "scallion pancakes"
+        
+        //act
+        RecipeSearchAPI.fetchRecipe(for: searchQuery) { (result) in
+            switch result{
+            case .failure(let appError):
+                XCTFail("appError: \(appError)")
+            case .success(let recipes):
+                exp.fulfill()
+                XCTAssertEqual(recipes.count, expectedRecipeCount)
+                
+            }
+        }
+        wait(for: [exp], timeout: 5.0)
+    }
 }
